@@ -66,7 +66,7 @@ params:
   regularization:
     type: l2 # can be "l1", "l2", "l1_l2" (case-insensitive).
     scale: 1e-4 # if using "l1_l2" regularization, this should be a YAML list.
-    
+
   # (optional) The type of learning rate decay (default: null). See:
   #  * https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules
   #  * https://opennmt.net/OpenNMT-tf/package/opennmt.schedules.html
@@ -111,3 +111,36 @@ params:
   # https://www.aclweb.org/anthology/P19-1623 (default: false).
   # See also "decoding_subword_token" that is used by this mode.
   contrastive_learning: true
+
+# Training options.
+train:
+  # (optional) Training batch size. If set to 0, the training will search the largest
+  # possible batch size.
+  batch_size: 0
+  # (optional) Tune gradient accumulation to train with at least this effective batch size
+  # (default: null).
+  effective_batch_size: 25000
+
+  # (optional) Save a checkpoint every this many steps (default: 5000).
+  save_checkpoints_steps: 2000
+  # (optional) How many checkpoints to keep on disk.
+  keep_checkpoint_max: 10
+
+  # (optional) Dump summaries and logs every this many steps (default: 100).
+  save_summary_steps: 200
+
+  # (optional) Maximum training step. If not set, train forever.
+  max_step: 1000000
+
+  # (optional) The maximum length of feature sequences during training (default: null).
+  maximum_features_length: 90
+  # (optional) The maximum length of label sequences during training (default: null).
+  maximum_labels_length: 90
+
+  # (optional) Moving average decay. Reasonable values are close to 1, e.g. 0.9999, see
+  # https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage
+  # (default: null)
+  moving_average_decay: 0.9999
+  # (optional) Number of checkpoints to average at the end of the training to the directory
+  # model_dir/avg (default: 0).
+  average_last_checkpoints: 8
