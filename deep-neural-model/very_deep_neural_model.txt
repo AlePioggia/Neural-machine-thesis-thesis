@@ -1,0 +1,16 @@
+Most complex model
+
+Implements the Transformer:
+
+embedding_size: 700
+num_layers: 10 //very deep and complex neural network, since the older results were pretty disappointing
+num_units: 700, since it has to be between the size of the input and output units
+num_heads: 10 // I chose this value since I want a very high level of discrimination, since this model is something like brute force, I want to check the performance of a very complex model,
+		//since I would like to get to the perfect model by descreasing the power step by step.
+pre_norm: true //since I consider this model pretty complex and hard to learn, I decided to follow open-nmt's advice, by letting the model perform layer normalization before each sub-layer.
+ffn_inner_dim: 3000 //for the same reason explained before, I decided to start off with a bigger layer, in order to achieve a better approximation(gaussian curve), if the performance
+			// suffers a lot from this, I will drop this value to 2048, as suggested by open-nmt
+ffn_dropout: 0.3 //I decided to raise this parameter's value, since with this kind of model I'm really scared of overfitting, especially because of my changes, that are not quite secure.
+attention_dropout: 0.3
+dropout=0.3
+share_embeddings=all

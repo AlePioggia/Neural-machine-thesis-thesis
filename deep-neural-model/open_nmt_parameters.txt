@@ -1,0 +1,21 @@
+embedding size: l'embedding size rappresenta la dimensionalità del vettore multidimensionale correlato ad una parola, non esiste una regola precisa per determinarlo, 
+si definisce empiricamente,
+le dimensioni più comuni sono: 100, 300, 512, 618, 712. Attenzione, una classificazione (piatta) delle parole, richiede un embedding size più piccolo, 
+mentre la predittività richiede una dimensione più grande (come nel nostro caso).
+
+num_layers: esprime il numero di layer intermedi di una rete neurale, più layer ho, maggiore sarà l'espressività. Un numero elevato di layer però, comporterà un largo uso di
+memoria, di conseguenza si perde in termini di prestazioni. E' dunque necessario trovare un equilibrio.
+
+num_of_heads: The Transformer calls each Attention processor an Attention Head and repeats it several times in parallel. 
+This is known as Multi-head attention. It gives its Attention greater power of discrimination, by combining several similar Attention calculations.
+
+ffn_inner_dim =  you aren't familiar with sparse autoencoders, this is a little counter intuitive - WTF would you have a larger hidden dimension?
+The intuition borrows from infinitely wide neural networks. If you have an infinitely wide neural network, you have basically have a Gaussian process and sample any function you'd like. So the wider the network you have, the more approximation power that you have. In the case of inputs, this is a matter of learning a dictionary. If you have only discrete inputs, this hidden layer will be capped at O(2N) width, 
+where N is the maximum number of bits it takes to represent the input (which would boil down to approximating a lookup table).
+Of course, these aren't trivial to implement in practice. These layers are bound to be bloated with identifiability issues. 
+Common approaches include L1 regularization. I'm guessing that the convolutional layers + dropout are just another attempt
+ to deal with these sorts of identifiability issues. Furthermore, the FFN is an attempt to learn an arbitrary mapping 
+for individual words (you can think of mapping words to synonyms for instance).
+These are all guesses though - more intuition is welcome.
+
+ffn_dropout: parametro di una variabile di bernoulli che determina la probabilità che un elemento venga posto a zero o droppato. E' fondamentale per combattere l'overfitting.

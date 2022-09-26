@@ -1,0 +1,173 @@
+\clearpage{\pagestyle{empty}\cleardoublepage}
+\chapter{Contesto}                %crea il capitolo
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%imposta l'intestazione di pagina
+\lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries\rightmark}}
+\pagenumbering{arabic}                  %mette i numeri arabi
+\section{Neural machine translation - NMT}                 %crea la sezione
+La neural machine translation (in italiano traduzione automatica neurale (NMT))  è un approccio alla traduzione automatica che utilizza una rete neurale per prevedere la probabilità di una sequenza di parole, modellando in genere intere frasi in un unico modello integrato. La creazione del modello sfrutta interamente il machine learning, dunque è in grado di apprendere autonomamente sulla base dei training alla quale prende parte. 
+
+\subsubsection{Differenze dai modelli tradizionali}
+
+\begin{itemize}
+	\item Rispetto ai modelli di traduzione tradizionali, chiamati SMT(statical machine translation), sfruttano una quantità infinitesimale di memoria;
+	\item grazie all'utilizzo del deep learning nella creazione della rete neurale, è possibile optare per un addestramento del tipo end-to-end, questo permette di semplificare la pipeline di sviluppo, con conseguente aumento di prestazioni non indifferente. Per andare più nello specifico:
+	\begin{itemize}
+		\item una pipeline tradizionale ha questo aspetto: 
+		\\
+		voce(input) $\rightarrow$ riduzione del rumore (noise)   $\rightarrow$ estrazione dei fonemi $\rightarrow$ composizione delle parole $\rightarrow$ trascrizione
+		\item una pipeline che sfrutta il deep learning si presenta invece così:
+		\\
+		voce(input) $\rightarrow$ $DNN$  $\rightarrow$ trascrizione	 
+	\end{itemize}
+	Osservando le pipeline proposte, è possibile osservare che l'approccio tradizionale porta con sè una complessità non indifferente, ogni singolo layer citato deve essere ottimizzato separatamente, attraverso un preciso criterio. La pipeline creata a partire da una rete neurale invece, semplifica la comunicazione fra i due agenti(input $\rightarrow$ output desiderato).
+	\\ 
+	Nota: DNN = deep neural network
+\end{itemize}
+
+\subsection{RNN}
+
+Prima di descrivere in maniera analitica e precisa la struttura che permette la costruzione di un modello di encoding-decoding è necessario definire le RNN, o Recurrent Neural Networks.
+Le RNN sono delle reti neurali molto interessanti, perché a differenza dalle tradizionali straight forward neural networks, in cui l'informazione può andare solo in un verso (in avanti), in questo tipo di reti i nodi possono essere interconnessi ai livelli precedenti, ammettendo dei loop. Il fatto che i neuroni (o nodi, intesi come elementi che compongono la rete neurale) possano propagare il segnale in tutte le direzioni, permette di introdurre intrinsecamente il concetto di memoria. Questo perché, l'output di un neurone può ipoteticamente influenzare sè stesso in un diverso istante temporale (rispetto al presente). In particolare, una RNN richiede, oltre all'input tradizionale, lo hidden state, che non è altro che l'output prodotto dallo stesso neurone al passo precedente.
+
+\textbf{Perché sfruttare le RNN?}
+Le RNN, grazie alla memoria, possono operare su dati dinamici mentre le SNN (straight forward neural networks) operano unicamente su dati statici. Grazie a questa proprietà, le reti neurali ricorrenti, sono in grado di trattare delle sequenze temporali, variabili nel tempo. Un esempio di applicazione può convenire nella interpretazione del linguaggio dei segni. In questo ambito applicativo non è richiesto solo di riconoscere la mano, bensì di comprendere la sequenza di movimenti per poter dedurre ed interpretare il significato dei gesti. Quest'ultima constatazione ci rende in grado di percepire l'importanza di questo tipo di rete neurale nell'ambito delle traduzioni automatiche, in quanto si ha a che fare con sequenze di parole, non necessariamente definite in maniera statica che, per dare un senso logico alla frase, necessitano un meccanismo che sfrutti la memoria (e non solo). Per concludere l'approfondimento, considero fondamentale precisare che, by default, la memoria di un neurone è piuttosto breve, dunque gli output generati dai primi layer, difficilmente condizioneranno quelli presenti in livelli più avanzati. A questo proposito sono state studiate delle reti neurali a lunga memoria, quali le 
+LSTM (Long Short Term Memory) e le GRU (Gated Recurrent Units).
+
+\subsection{Transformers}
+
+Nell'ambito del NMT, il modello maggiormente utilizzato è il transformer, che negli ultimi anni ha preso il posto delle reti neurali RNN, descritte nella sezione precedente. 
+
+\subsubsection{Caratteristiche e peculiarità}
+
+La tipologia di modelli citati in questa sezione sono nati con l'obiettivo di evitare la ricorsione, facendo spazio a delle tecnologie che garantissero un tipo di computazione che ammettesse il parallelismo. Le caratteristiche principali sono le seguenti:
+\begin{itemize}
+	\item data una sequenza di dati in input, a differenza delle reti RNN, che operano word-by-word ( ossia hanno la necessità di analizzare ogni singolo elemento della struttura), il transformers sono in grado di processare l'input \textbf{"as a whole"}, ossia come un unico grande dato;
+	\item l'introduzione della \textbf{self-attention}, che consente un notevole miglioramento nella predittività, ha dato il nome all'articolo che ha presentato questa tipologia di modelli, ovvero "Attention is all you need";
+	\item il \textbf{positional embedding}: si tratta di una tecnica che, insieme all'attention, ha come obiettivo quello di eliminare i processi che sfruttano la ricorsione. In particolare, l'idea è di assegnare dei pesi legati alla posizione di una parola all'interno della frase, in modo da verificare quali siano le tuple di parole che hanno più probabilità di essere accostate.
+\end{itemize}
+
+Il primo punto è fondamentale perché consente al modello di non dipendere da neuroni di layer lontani, processando l'intero input in una sola volta, viene eliminato il concetto di perdita di memoria. Il tutto può essere chiarito attraverso un semplice esempio:
+\\
+Consideriamo un ipotetico articolo, supponendo che i puntini rappresentino il testo di intermezzo: 
+\\\\ \textit{La nazionale italiana di basket ....... Pozzecco ha deciso di intervenire in sala stampa, ringraziando lo staff}.\\
+
+Dato questo input, il transformer, analizza l'articolo nel suo intero, mentre un modello tradizionale considera parola per parola, ovvero: $\{$0:La, 1:nazionale, 2: italiana, 3: di, 4: Basket, ..., 1200:Pozzecco $\}$. A giudicare da questo esempio si può osservare che è impossibile mantenere il contesto analizzando una parola per iterazione, specialmente se si ha necessità trovare un nesso fra due parole con indici molto distanti. 
+ 
+\subsubsection{Descrizione tecnica dettagliata del modello}
+
+Si tratta di un sistema di encoding-decoding. 
+In linea generale, l'encoder mappa l'input ricevuto in un vettore continuo, che contiene tutte le informazioni apprese dai dati ricevuti in ingresso. Il decoder a partire dal vettore continuo, passo per passo, genera un unico output. Il singolo output generato è al contempo condizionato dagli ulteriori vettori continui dati in pasto al decoder in precedenza. Questo passaggio avviene ricorsivamente, fino a quando il decoder non incontra il token $<$end$>$, rappresentante la end of sentence (in italiano, fine della frase). 
+
+\subsubsection{Input embedding}
+
+Il primo passo è passare il nostro input al word embedded layer, il quale può essere considerato come una lookup table che contiene dei fattori di rappresentazione per ogni parola. In particolare, ogni parola viene mappata in un vettore avente valori continui, che la rappresentano, dal momento che il sistema apprende attraverso pattern numerici. 
+
+\subsubsection{Positional encoding}
+
+In seguito alla definizione dell'embedded layer è necessario passargli delle informazioni circa la collocazione di ogni vettore all'interno della rete neurale, dal momento che non è più possibile sfruttare la ricorsione a questo scopo. Per fare ciò è stata studiata una brillante soluzione, che verte sull'utilizzo di queste due formule:
+\begin{itemize}
+	\item $P(pos, 2i + 1) = \cos(\dfrac{pos}{10.000^{2i/dmodel}})$
+	\item $P(pos, 2i) = \sin(\dfrac{pos}{10.000^{2i/dmodel}})$
+\end{itemize}
+Per ogni step di esecuzione di indice pari, genera un vettore di valori continui attraverso la funzione coseno. Per quelli di indice dispari invece, il vettore viene generato sfruttando il seno. Ad ogni vettore risultante viene sommato l'embedding vector corrispondente (ottenuto al primo step). Per la generazione si utilizzano le funzioni seno e coseno per via delle loro proprietà lineari, che l'intelligenza artificiale è in grado di apprendere con maggiore facilità. 
+
+\subsubsection{Encoding layer}
+Come introdotto inizialmente, l'encoder mappa l'input ricevuto in un vettore numerico contenente valori continui, rappresentanti le informazioni apprese dai dati ricevuti in ingresso. Contiene due sottomoduli:
+\begin{itemize}
+	\item il primo è una unità dedicata alla self- attention chiamata \textbf{multi head attention layer}. Andando nello specifico, ;
+	\item l'altro è una vera e propria \textbf{rete neurale feed forward. }
+\end{itemize}
+I due layer sono collegati fra loro non direttamente, fra loro si interpone un layer intermedio che si occupa della normalizzazione dell'output. 
+
+\subsubsection{Multi-head attention layer}
+
+L'unità citata nel titolo, implementa uno specifico meccanismo di attention chiamato self-attention. Questa tecnologia consente ad un modello, attraverso principi combinatori accurati, di associare le parole presenti nell'input. Ad esempio, supponendo di avere la frase {"ciao", "come", "stai"}, l'unità potrebbe ipoteticamente correlare : {"ciao", "come"} oppure {"stai", "ciao"}. Attraverso questo tipo di associazioni, il modello può ad esempio interpretare la tipologia di frase, rendendosi conto in questo caso, di avere a che fare con una domanda. Queste intuizioni, permettono alla rete neurale di strutturare un possibile output.
+
+\paragraph{Perché il meccanismo funzioni} 
+l'input deve essere passato come parametro a tre distinti layer, fra loro connessi, i quali genereranno i seguenti vettori continui:
+\begin{itemize}
+	\item query vector;
+	\item key vector;
+	\item value vector.
+\end{itemize}
+
+In particolare il query vector contiene la richiesta, generalmente in formato json, che verrà etichettata dal key vector. Questa operazione è molto simile a quella che viene effettuata durante una richiesta ad un motore di ricerca, come ad esempio quello di youtube. Quando viene effettuata la ricerca, google etichetta il testo inserito dall'utente, in particolare associa la ricerca a descrizione, autore o titolo del video. Finita l'etichettatura, interroga il database, cercando i migliori match, ovvero i video strettamente compatibili con la richiesta.
+\\
+Il vettore delle query dunque, viene moltiplicato per il vettore delle chiavi (o key vector), ottenendo come risultato la matrice degli scores, o punteggi. Le celle della matrice risultante contengono un valore numerico, il quale indica quanto forte sia il collegamento fra una parola e l'altra, ovvero l'attenzione che occorre porre. Quindi, semplificando il concetto, all'interno di un arco temporale ogni parola avrà a disposizione un punteggio in relazione ad ogni altra parola presente. Il focus aumenta con l'aumentare del valore contenuto nella cella.
+\begin{table}[h]                        %ambiente tabella
+	%(serve per avere la legenda)
+	\begin{center}                          %centra nella pagina la tabella
+		\begin{tabular}{r|c|c}                  %tre colonne con righe verticali
+			%   prodotte con |
+			\hline \hline                           %inserisce due righe orizzontali
+			$81$ & $18$ & $91$\\           %& separa le colonne e con
+			\hline                                  %inserisce una riga orizzontale
+			$509$ & $1000$ & $230$\\           %  \\ va a capo
+			\hline                                  %inserisce una riga orizzontale
+			$300$ & $200$ & $3300$\\
+			\hline \hline                           %inserisce due righe orizzontali
+		\end{tabular}
+		\caption[legenda elenco tabelle]{Ipotetica matrice degli scores, per semplicità utilizzerò la sua nomenclatura originale, ovvero score matrix.}
+	\end{center}
+\end{table}
+
+Osservando la matrice in formato tabellare sovrastante, si nota subito che l'ordine di grandezza del contenuto delle celle necessita una sorta di normalizzazione, per evitare che, la moltiplicazione con altre matrici, generi valori troppo grandi. A questo proposito si effettuano le seguenti operazioni:
+\begin{itemize}
+	\item $\dfrac{score matrix}{\sqrt{d_{k}}}$ $\rightarrow$ divido la matrice per la dimensione delle query e delle keys;
+	\item $softmax(x)_{i} = \dfrac{exp(x_i)}{\sum_{j} exp(x_j)}$ $\rightarrow$ in questo passaggio, viene presa come input la matrice ottenuta al passo precedente, $x$ un elemento arbitrario. La matrice risultante chiamata sealed matrix, conterrà per ogni cella un valore probabilistico, il quale range va da $0$ ad $1$. Alle probabilità più alte verrà attribuita una maggiore attenzione (da qui, il termine attention), mentre quelle inferiori alla soglia verranno ignorate, perché non utili. This allows the model to be more confident on which words to attend to;
+	\item $sealed matrix \cdot value matrix = output$ $\rightarrow$ moltiplico la matrice ottenuta al passaggio precedente, che può essere considerata una matrice di attention, per il vettore dei valori definito inizialmente. L'output, come già accennato, oscurerà le parole con un punteggio softmax più basso, dando la priorità alle altre.
+	\item infine nell'ultimo passaggio, l'$output$ ottenuto al passaggio precedente viene passato in input ad un layer lineare, che sarà in grado di processarlo.
+\end{itemize}
+L'unità prende il nome di multi-head attention layer, perché i tre vettori di input possono essere scissi prima di iniziare il processo, in questo modo sono in grado di operare in parallelo.
+
+\section{Seconda Sezione}
+Ora vediamo un elenco puntato:
+\begin{itemize}                         %crea un elenco puntato
+\item primo oggetto
+\item secondo oggetto
+\end{itemize}
+
+\section{Altra Sezione}
+Vediamo un elenco descrittivo:
+\begin{description}                     %crea un elenco descrittivo
+  \item[OGGETTO1] prima descrizione;
+  \item[OGGETTO2] seconda descrizione;
+  \item[OGGETTO3] terza descrizione.
+\end{description}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%crea una sottosezione
+\subsection{Altra SottoSezione}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%crea una sottosottosezione
+\subsubsection{SottoSottoSezione}Questa sottosottosezione non viene
+numerata, ma \`e solo scritta in grassetto.
+\section{Altra Sezione}                 %crea una sottosezione
+Vediamo la creazione di una tabella; la tabella \ref{tab:uno}
+(richiamo il nome della tabella utilizzando la label che ho messo sotto):
+la facciamo di tre righe e tre colonne, la prima colonna
+``incolonnata'' a destra (r) e le altre centrate (c):\\
+\begin{table}[h]                        %ambiente tabella
+                                        %(serve per avere la legenda)
+\begin{center}                          %centra nella pagina la tabella
+\begin{tabular}{r|c|c}                  %tre colonne con righe verticali
+                                        %   prodotte con |
+\hline \hline                           %inserisce due righe orizzontali
+$(1,1)$ & $(1,2)$ & $(1,3)$\\           %& separa le colonne e con
+\hline                                  %inserisce una riga orizzontale
+$(2,1)$ & $(2,2)$ & $(2,3)$\\           %  \\ va a capo
+\hline                                  %inserisce una riga orizzontale
+$(3,1)$ & $(3,2)$ & $(3,3)$\\
+\hline \hline                           %inserisce due righe orizzontali
+\end{tabular}
+\caption[legenda elenco tabelle]{legenda tabella}\label{tab:uno}
+\end{center}
+\end{table}
+\section{Altra Sezione}\label{sec:prova}%posso mettere le label anche
+                                        %   alle section
+\subsection{Listati dei programmi}
+\subsubsection{Primo Listato}
+\begin{verbatim}
+        In questo ambiente     posso scrivere      come voglio,
+lasciare gli spazi che voglio e non % commentare quando voglio
+e ci sarà scritto tutto.
+Quando lo uso è meglio che disattivi il Wrap del WinEdt
+\end{verbatim}
