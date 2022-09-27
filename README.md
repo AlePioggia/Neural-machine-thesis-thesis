@@ -1,4 +1,4 @@
-# Neural-machine-thesis-thesis
+# Neural-machine-thesis
 
 In order to run the first neural network, you should follow this steps (the example will be based on a unix machine, since it was created in docker):
 1. go to the directory named deep-neural-model -> command: cd deep-neural-model
