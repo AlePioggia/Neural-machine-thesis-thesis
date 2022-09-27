@@ -6,6 +6,6 @@ In order to run the first neural network, you should follow this steps (the exam
     - `<onmt-main --model_type Transformer --config data.yml --auto_config train>`
     - `<onmt-main --model model/config/custom_transformer.py --config data.yml --auto_config train>` (not working yet)
 
-##Important note!
+## Important note!
 
 In the data.yml file, I set the parameter: `batch_size:0`, in the train label, it means that he will automatically search for the larger batch size avaiable. This parameter can give some problems, so if the training won't start my advice is to change it to `batch_size: 64`
