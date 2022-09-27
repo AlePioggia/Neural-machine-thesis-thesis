@@ -1,77 +1,41 @@
-# (optional) The directory where models and summaries will be saved.
-# Can also be set with the command line option --model_dir.
-# The directory is created if it does not exist.
 model_dir: very_deep_model
 
-# (optional) Enable automatic parameters based on the selected model.
-# Can also be set with the command line option --auto_config.
+# (optional)
 auto_config: true
 
 data:
-  # (required for train run type).
   train_features_file: data/toy-ende/src-train.txt
   train_labels_file: data/toy-ende/tgt-train.txt
-
-  # (required for train_end_eval and eval run types).
   eval_features_file: data/toy-ende/src-val.txt
   eval_labels_file: data/toy-ende/tgt-val.txt
+  source_vocabulary: data/toy-ende/src-vocab.txt
+  target_vocabulary: data/toy-ende/tgt-vocab.txt
 
-  # (optional) During export save the vocabularies as model assets, otherwise embed
-  # them in the graph itself (default: true).
+  # (optional)
   export_vocabulary_assets: true
 
-  # (optional) Tokenization configuration (or path to a configuration file).
-  # See also: https://github.com/OpenNMT/Tokenizer/blob/master/docs/options.md
-  source_tokenization:
-    type: OpenNMTTokenizer
-    params:
-      mode: aggressive
-      joiner_annotate: true
-      segment_numbers: true
-      segment_alphabet_change: true
-  target_tokenization: config/tokenization/aggressive.yml
-
-  # (optional) For language models, configure sequence control tokens (usually
-  # represented as <s> and </s>). For example, enabling "start" and disabling "end"
-  # allows nonconditional and unbounded generation (default: start=false, end=true).
-  #
-  # Advanced users could also configure this parameter for seq2seq models with e.g.
-  # source_sequence_controls and target_sequence_controls.
+  # (optional)
   sequence_controls:
     start: false
     end: true
 
-  # (optional) For sequence tagging tasks, the tagging scheme that is used (e.g. BIOES).
-  # For supported schemes, additional evaluation metrics could be computed such as
-  # precision, recall, etc. (accepted values: bioes; default: null).
+  # (optional)
   tagging_scheme: bioes
 
 # Model and optimization parameters.
 params:
   # The optimizer class name in tf.keras.optimizers or tfa.optimizers.
   optimizer: Adamax
-  # (optional) Additional optimizer parameters as defined in their documentation.
-  # If weight_decay is set, the optimizer will be extended with decoupled weight decay.
+  # (optional)
   optimizer_params:
     beta_1: 0.8
     beta_2: 0.998
   learning_rate: 1.0
-
-  # (optional) List of layer to not optimize.
-  freeze_layers:
-    - "encoder/layers/0"
-    - "decoder/output_layer"
-
-  # (optional) Weights regularization penalty (default: null).
+  # (optional) 
   regularization:
     type: l2 # can be "l1", "l2", "l1_l2" (case-insensitive).
     scale: 1e-4 # if using "l1_l2" regularization, this should be a YAML list.
-
-  # (optional) The type of learning rate decay (default: null). See:
-  #  * https://www.tensorflow.org/api_docs/python/tf/keras/optimizers/schedules
-  #  * https://opennmt.net/OpenNMT-tf/package/opennmt.schedules.html
-  # This value may change the semantics of other decay options. See the documentation
-  # or the code.
+  # (optional)
   decay_type: NoamDecay
   # (optional unless decay_type is set) Decay parameters.
   decay_params:
@@ -81,17 +45,13 @@ params:
   decay_step_duration: 1
   # (optional) After how many steps to start the decay (default: 0).
   start_decay_steps: 50000
-
   # (optional) The learning rate minimum value (default: 0).
   minimum_learning_rate: 0.0001
-
   # (optional) The label smoothing value.
   label_smoothing: 0.3
-
   # (optional) Width of the beam search (default: 1).
   beam_width: 3 #la migliore combinazione date 3 parole
-  # (optional) Number of hypotheses to return (default: 1). Set 0 to return all
-  # available hypotheses. This value is also set by infer/n_best.
+  # (optional)
   num_hypotheses: 0
   # (optional) Length penaly weight to use during beam search (default: 0).
   length_penalty: 0.2
@@ -102,14 +62,9 @@ params:
   sampling_topk: 1
   # (optional) High temperatures generate more random samples (default: 1).
   sampling_temperature: 1
-
-  # (optional) Replace unknown target tokens by the original source token with the
-  # highest attention (default: false).
+  # (optional) 
   replace_unknown_target: true
-
-  # (optional) Enable contrastive learning mode, see
-  # https://www.aclweb.org/anthology/P19-1623 (default: false).
-  # See also "decoding_subword_token" that is used by this mode.
+  # (optional)
   contrastive_learning: true
 
 # Training options.
@@ -120,27 +75,76 @@ train:
   # (optional) Tune gradient accumulation to train with at least this effective batch size
   # (default: null).
   effective_batch_size: 25000
-
   # (optional) Save a checkpoint every this many steps (default: 5000).
   save_checkpoints_steps: 2000
   # (optional) How many checkpoints to keep on disk.
   keep_checkpoint_max: 10
-
   # (optional) Dump summaries and logs every this many steps (default: 100).
   save_summary_steps: 200
-
   # (optional) Maximum training step. If not set, train forever.
   max_step: 1000000
-
   # (optional) The maximum length of feature sequences during training (default: null).
   maximum_features_length: 90
   # (optional) The maximum length of label sequences during training (default: null).
   maximum_labels_length: 90
 
-  # (optional) Moving average decay. Reasonable values are close to 1, e.g. 0.9999, see
-  # https://www.tensorflow.org/api_docs/python/tf/train/ExponentialMovingAverage
-  # (default: null)
+  # (optional) 
   moving_average_decay: 0.9999
-  # (optional) Number of checkpoints to average at the end of the training to the directory
-  # model_dir/avg (default: 0).
+  # (optional) 
   average_last_checkpoints: 8
+  # (optional) Evaluation options.
+eval:
+  # (optional)
+  batch_size: 30
+  # (optional)
+  batch_type: examples
+  # (optional)
+  steps: 5000
+  # (optional) 
+  save_eval_predictions: false
+  # (optional) 
+  scorers: bleu
+  # (optional) 
+  length_bucket_width: 5
+
+  # (optional)
+  export_on_best: bleu
+  # (optional)
+  export_format: saved_model
+  # (optional)
+  max_exports_to_keep: 5
+  # (optional) 
+  early_stopping:
+    # (optional) The target metric name (default: "loss").
+    metric: bleu
+    # (optional)
+    min_improvement: 0.01
+    steps: 4
+
+infer:
+  # (optional) 
+  batch_size: 10
+  # (optional)
+  batch_type: examples
+  # (optional) 
+  n_best: 1
+  # (optional) For compatible models, also output the score (default: false).
+  with_scores: true
+  # (optional) For compatible models, also output the alignments
+  # (can be: null, hard, soft, default: null).
+  with_alignments: soft
+  # (optional) 
+  length_bucket_width: 5
+
+# (optional) Scoring options.
+score:
+  # (optional)
+  batch_size: 64
+  # (optional)
+  batch_type: examples
+  # (optional)
+  length_bucket_width: 0
+  # (optional)
+  with_token_level: false
+  # (optional)
+  with_alignments: null
