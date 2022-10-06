@@ -3,6 +3,10 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%imposta l'intestazione di pagina
 \lhead[\fancyplain{}{\bfseries\thepage}]{\fancyplain{}{\bfseries\rightmark}}
 \pagenumbering{arabic}                  %mette i numeri arabi
+
+
+\section{STM}
+
 \section{Neural machine translation - NMT}                 %crea la sezione
 La neural machine translation (in italiano traduzione automatica neurale (NMT))  è un approccio alla traduzione automatica che utilizza una rete neurale per prevedere la probabilità di una sequenza di parole, modellando in genere intere frasi in un unico modello integrato. La creazione del modello sfrutta interamente il machine learning, dunque è in grado di apprendere autonomamente sulla base dei training alla quale prende parte. 
 
@@ -118,7 +122,156 @@ Osservando la matrice in formato tabellare sovrastante, si nota subito che l'ord
 	\item $sealed matrix \cdot value matrix = output$ $\rightarrow$ moltiplico la matrice ottenuta al passaggio precedente, che può essere considerata una matrice di attention, per il vettore dei valori definito inizialmente. L'output, come già accennato, oscurerà le parole con un punteggio softmax più basso, dando la priorità alle altre.
 	\item infine nell'ultimo passaggio, l'$output$ ottenuto al passaggio precedente viene passato in input ad un layer lineare, che sarà in grado di processarlo.
 \end{itemize}
-L'unità prende il nome di multi-head attention layer, perché i tre vettori di input possono essere scissi prima di iniziare il processo, in questo modo sono in grado di operare in parallelo.
+
+Perché si parli di multi-headed attention, è necessario che, i vettori presi originariamente in input (query, key e value vectors), vengano scissi $n$ volte e ogni tripletta di vettori ottenuta, attraversi lo stesso processo di self-attention individualmente. La scissione dei vari array, si basa su criteri prevalentemente dimensionali, in quanto, a partire dal  vettore originale, lungo $length$, si ricavano $n$ array, che rappresentano una divisione dello stesso in $n$ sottoarray.
+Ogni singolo processo di self-attention prodotto prenderà il nome di head, da questo deriva il nome di multi-headed attention layer. 
+
+\paragraph{Il seguente esempio} può chiarire il concetto riguardante la scissione:
+
+\begin{itemize}
+	\item array originali: $q=\{"hi", "how", "are", "you", "my", "friend"\}$, $k=\{1, 2, 3, 4, 5, 6\}$, $v=\{0.1, 0.2, 0.3, 0.4, 0.5, 0.6\}$ con singolo layer di self attention $h$, potrebbe diventare:
+	\begin{itemize}
+		\item $\{q_1 = \{"hi", how"\}, k_1=\{1, 2\}, v_1=\{0.1, 0.2\}\}$ $\rightarrow$ $head_1$
+		\item $\{q_2 = \{"are", "you"\}, k_2=\{3, 4\}, v_2=\{0.3, 0.4,\}\}$ $\rightarrow$ $head_2$
+		\item $\{q_3 = \{"my", "friend"\}, k_3=\{5, 6\}, v_3=\{0.5, 0.6\}\}$ $\rightarrow$ $head_3$
+	\end{itemize}
+	Abbiamo dunque ottenuto tre tuple di array, di cardinalità 3 e ad ogni tupla è associata una unità individuale di self-attention.
+\end{itemize}
+
+\newpage
+
+\paragraph{Gli output} prodotti da ogni singolo processo derivante dalla scissione, al termine della operazione verranno concatenati in un unico oggetto, che sarà a tutti gli effetti l'input del layer lineare, introdotto nell'ultimo punto della sottosezione precedente. Il fatto di avere a disposizione un input generato da $n$ diversi processi di self-attention, fa in modo che, ogni head unit impari attraverso processi logici diversi e concatenandoli, si è in grado di offrire al modello un potere di rappresentazione più spiccato. 
+
+\paragraph{Per riassumere} Il multi-headed-attention è un modulo, compreso in una rete di trasformatori,  che riceve in input i pesi relativi all'attention (o attention weights)  e produce un output, che contiene informazioni codificate. Le informazioni dicono al modello con quale frequenza e modalità le parole di una sequenza, devono essere associate.
+
+\subsubsection{Residual connections}
+
+Le residual connections (o connessioni residue), sono appartenenti ad un tipo di rete neurale chiamata \textbf{residual neural networks}. Si tratta di una rete la quale, attraverso le proprie connessioni, sia in grado di operare non considerando nel processo i layer intermedi. Una domanda che ci si potrebbe porre è la seguente: "a cosa serve saltare dei layer nell'esecuzione? non è controproducente?". Questo tipo di domanda è a mio avviso, molto opportuna, in quanto è vero che la logica generale sia contro intuitiva, allo stesso tempo però si può osservare che, lo skip di layer:
+\begin{itemize}
+	\item risolve il noto ed importante problema dei \textbf{vanishing gradients}, ottimizzando la rete neurale. Nell'apprendimento automatico, il problema del Vanishing gradient si incontra quando si addestrano reti neurali con metodi di apprendimento basati sul gradiente e sulla back-propagation. In tali metodi, durante ogni iterazione dell'addestramento, ciascuno dei pesi della rete neurale riceve un aggiornamento proporzionale alla derivata parziale della funzione di errore rispetto al peso corrente. Il problema è che in alcuni casi il gradiente sarà di dimensioni infinitesimali, impedendo al peso di cambiare valore in maniera ottimale;
+	\item \textbf{mitiga il problema di degradazione, meglio noto come accuracy problem (problema di precisione)}. La degradazione si verifica quando si ha a che fare con una rete con un grande numero di layer, perché è formalmente dimostrato che, aumentare il numero di strati, comporta un margine di errore più ampio. 
+\end{itemize} 
+Nel trasformer, l'importanza delle connessioni residue si può percepire dopo aver studiato ed analizzato con precisione tutti i singoli passaggi, indicati nel prossimo paragrafo.
+ \paragraph{Si parte} unendo l'output generato dal \textbf{multi-level attention layer} all'input originale. Il risultato ottenuto sarà poi normalizzato, passando attraverso il normalization layer. Supponendo che $multiLevelHeadOutput$ sia l'output ottenuto dal multi-headed layer e che $input$ sia l'input originale,dato in pasto allo stesso, il tutto può essere formalizzato attraverso la formula:
+\begin{itemize}
+	\item $ LayerNorm(ResidualConnection = multiLevelHeadOutput, input)$
+\end{itemize}
+
+Ciò che ottengo dalla normalizzazione, passa attraverso una rete neurale feed-forward, che dunque non ammette backtracking e non ha memoria, nemmeno a breve termine. 
+La rete neurale artificiale citata, è composta da 2 layer lineari, come quelli visti in precedenza, con la differenza che fra essi, viene collocato un layer ReLu.
+La funzione ReLu è una funzione di attivazione non lineare, molto nota in ambito deep learning. Si tratta di una sigla che sta per Rectified Linear Unit, semplificabile in "rettificatore". La particolarità della funzione è che attiva \textbf{solo un} neurone alla volta e non gli è concesso attivarli tutti contemporaneamente. 
+
+\paragraph{Il valore di uscita} dalla rete feed forward, verrà a sua volta legato all'input originale, formando un'ulteriore connessione residua, che verrà poi normalizzata da un layer di normalizzazione. Incorporare al modello una rete feed-forward serve per elaborare ulteriormente l'output della attention, dandogli potenzialmente una rappresentazione più ricca.
+\paragraph{Questo ultimo tassello} conclude la logica procedurale del modello encoder, il quale scopo, come già spiegato nell'introduzione del capitolo, è di offrire al decoder delle indicazioni da seguire, circa le parole alla quale deve essere dedicata una maggiore attenzione. Come con l'attention è possibile creare uno stack di differenti encoder, dove ogni singolo elemento della pila ha possibilità di imparare diverse rappresentazioni dell'attention. Quest'ultimo aspetto è molto interessante, perché aumenta il potere predittivo del rete del modello.
+
+\subsubsection{Decoder}
+
+Il ruolo del decoder consiste nel generare sequenze di testo, la sua struttura è molto simile a quella dell'encoder. 
+In particolare, ha a sua disposizione:
+\begin{itemize}
+	\item 2 multi-headed attention layers;
+	\item un feed fordward layer, ovvero una rete neurale senza backtracking;
+	\item un sub-layer di normalizzazione per ogni layer padre presente, oltre alla presenza di residual connections derivanti dall'utilizzo di una residual neural network (rnn);
+\end{itemize}
+
+Si tratta a tutti gli effetti di un modello autoregressivo (in inglese autoregressive model). 
+Il decoder infatti, prende in ingresso gli output generati dall'encoder, oltre alle informazioni sull'attention degli stessi. Il layer elabora richieste fino a quando non viene generato l'<end> token, il quale indica la fine della frase.
+
+\subsubsection{Modello autoregressivo}
+
+Un modello autoregressivo si fonda sulla misurazione della correlazione fra osservazioni, effettuate ad un istante temporale antecedente rispetto al tempo di misurazione, allo scopo di predirre il valore che la variabile considerata assumerà al prossimo step (il nostro output). Nel caso in cui la variabile di input e output varino nella stessa direzione, ovvero incrementando o diminuendo insieme, si otterrà una correlazione positiva. Al contrario, se la variazione segue il senso opposto, la correlazione sarà negativa. All'aumentare del valore di correlazione, che sia negativo o positivo, aumenta la probabilità che attraverso l'input la macchina sia in grado di prevedere il futuro. Dal momento che la correlazione è fra la variabile al presente e sè stessa al passo precedente, si parla di autocorrelazione.
+
+\subsubsection{Passaggi effettuati nella fase di decoding}
+
+\subsubsection{Embedding dell'output e positional encoding}
+
+L'input passa attraverso due layer, si tratta dell'embedding layer e il positional encoding layer. Il procedimento denota la posizione delle parole analizzate rispetto alla frase presa come riferimento.
+
+\subsubsection{Decoder multi headed attention 1}
+
+L'output ottenuto dal passaggio precedente vengono dati in pasto al primo dei due multi headed attention layer. In questa fase, il componente ha lo scopo di estrarre i punteggi relativi all'attention dell'input.
+Non bisogna confonderlo con il multi-headed attention layer presente nella struttura dell'encoder, questo perché, l'autoregressione richiede soluzioni leggermente diverse. In particolare, dal momento che processa l'input parola per parola è ritenuto necessario evitare che token futuri vengano condizionati. Ad esempio, supponendo che il modello stia analizzando la parola "tutto", della frase $\{$ "Io", "tutto", "bene"; "tu"?$\}$, esso non deve avere accesso alle parole successive, perché generate in un istante futuro. Detto ciò, quindi, è importante fare in modo che la computazione di una parola, possa essere condizionata solo dalle precedenti (generate anteriormente), non dalle successive (generate successivamente).
+Il metodo che rende possibile tutto ciò prende il nome di masking, e segue il seguente funzionamento:
+\begin{itemize}
+	\item per evitare che il decoder prenda in considerazione token futuri, viene applicata una "look ahead mask" prima di calcolare il softmax della matrice dei valori e dopo la normalizzazione degli score (osservare la sezione della attention per chiarire). La maschera è una matrice delle stesse dimensioni della sealed matrix, ovvero la matrice degli score in seguito alla normalizzazione. Le celle sopra la diagonale assumono valore - $\infty$, mentre le altre valore 0. Il risultato è la matrice chiamata \textbf{masked scores}. 
+	\item il motivo per il quale si applica questo tipo di maschera, è legato al fatto che, applicando il softmax (visto nei capitoli precedenti), i valori con -$\infty$ verranno sostituiti da zeri. La matrice risultante valorizza il punteggio di attention che verrà attribuito ad ogni token, a questo proposito, abbiamo che azzerando la parte sopra alla diagonale della matrice, stiamo implicitamente escludendo i token futuri dal calcolo. 
+	\\
+	\begin{table}[h]                        %ambiente tabella
+		%(serve per avere la legenda)                          %centra nella pagina la tabella
+			\begin{tabular}{r|c|c}                  %tre colonne con righe verticali
+				%   prodotte con |
+				\hline \hline                           %inserisce due righe orizzontali
+				$0.7$ & * & *\\           %& separa le colonne e con
+				\hline                                  %inserisce una riga orizzontale
+				$0.5$ & $0.1$ & *\\           %  \\ va a capo
+				\hline                                  %inserisce una riga orizzontale
+				$0.3$ & $0.2$ & $0.2$\\
+				\hline \hline                           %inserisce due righe orizzontali
+			\end{tabular}
+		+
+					\begin{tabular}{r|c|c}                  %tre colonne con righe verticali
+			%   prodotte con |
+			\hline \hline                           %inserisce due righe orizzontali
+			$0$ & $-\infty$ & $ - \infty$\\           %& separa le colonne e con
+			\hline                                  %inserisce una riga orizzontale
+			$0$ & $0$ & $-\infty$\\           %  \\ va a capo
+			\hline                                  %inserisce una riga orizzontale
+			$0$ & $0$ & $0$\\
+			\hline \hline                           %inserisce due righe orizzontali
+		\end{tabular}
+		=
+				\begin{tabular}{r|c|c}                  %tre colonne con righe verticali
+		%   prodotte con |
+		\hline \hline                           %inserisce due righe orizzontali
+		$0.7$ & $-\infty$ & $ - \infty$\\           %& separa le colonne e con
+		\hline                                  %inserisce una riga orizzontale
+		$0.5$ & $0.1$ & $-\infty$\\           %  \\ va a capo
+		\hline                                  %inserisce una riga orizzontale
+		$0.3$ & $0.2$ & $0.2$\\
+		\hline \hline                           %inserisce due righe orizzontali
+	\end{tabular}
+			\caption[legenda elenco tabelle]{L'esempio sovrastante ci mostra l'applicazione della maschera alla matrice degli score (post normalizzazione). In particolare, alla matrice degli score viene sommata la maschera (matrice centrale), che va ad incidere solo sui valori situati sopra la diagonale. Gli asterischi presenti nella matrice di sinistra, vanno ad indicare valori randomici, non è importante conoscerli, dal momento che diventeranno pari a - $\infty$}.
+	\end{table}
+	
+		\begin{table}[h]                        %ambiente tabella
+		%(serve per avere la legenda)                          %centra nella pagina la tabella
+		$softmax($
+		\begin{tabular}{r|c|c}                  %tre colonne con righe verticali
+			%   prodotte con |
+			\hline \hline                           %inserisce due righe orizzontali
+			$0.7$ & * & *\\           %& separa le colonne e con
+			\hline                                  %inserisce una riga orizzontale
+			$0.5$ & $0.1$ & *\\           %  \\ va a capo
+			\hline                                  %inserisce una riga orizzontale
+			$0.3$ & $0.2$ & $0.2$\\
+			\hline \hline                           %inserisce due righe orizzontali
+		\end{tabular}
+		$)$
+		= 
+				\begin{tabular}{r|c|c}                  %tre colonne con righe verticali
+			%   prodotte con |
+			\hline \hline                           %inserisce due righe orizzontali
+			$0.7$ & 0 & 0\\           %& separa le colonne e con
+			\hline                                  %inserisce una riga orizzontale
+			$0.5$ & $0.1$ & 0\\           %  \\ va a capo
+			\hline                                  %inserisce una riga orizzontale
+			$0.3$ & $0.2$ & $0.2$\\
+			\hline \hline                           %inserisce due righe orizzontali
+		\end{tabular}
+		\caption[legenda elenco tabelle]{Applicazione della funzione softmax alla matrice ottenuta in seguito al masking}.
+			\end{table}
+		\subsubsection{Multi headed attention layer 2}
+		Riceve in input il vettori delle query e values derivanti dall'encoder, mentre il vettore degli scores è l'output ottenuto dal primo layer di multi head attention. 
+		
+		\subsubsection{Feed forward linear layer (Classifier)}
+		
+		L'output ottenuto in seguito all'elaborazione delle informazioni a carico del secondo layer di attention, passa attraverso una rete feed forward, la quale accede ad un classifier.
+		A classifier in machine learning is an algorithm that automatically orders or categorizes data into one or more of a set of “classes.” One of the most common examples is an email classifier that scans emails to filter them by class label: Spam or Not Spam.
+		Il classifier (o classificatore, in italiano), in questo caso, crea una classe per ogni singola parola data in input, quindi, per chiarire il concetto, data in input una frase composta da 500 parole, il classificatore la mapperà in 500 diverse classi, indicizzate e con identificatore univoco. L'output del classificatore viene poi immesso nel softmax layer, il quale ha prodotto i punteggi di probabilità compresi tra zero e uno per ciascuna classe.  Infine il modello prenderà la classe con il punteggio di predittività più alto, restituendolo in output, si tratta del risultato della predizione del modello.  La parola risultante verrà poi aggiunta all'elenco degli input del decodificatore, il quale continuerà di nuovo la decodifica fino a quando non incontrerà il token di fine, la quale classe ha la previsione di probabilità più alta. Il decoder, similmente all'encoder, può essere impilato e sovrapposto, ogni strato riceve l'input dall'encoder e dai livelli precedenti. Impilando i livelli, il modello può imparare a estrarre e concentrarsi su diverse combinazioni attraverso l'attention, aumentando potenzialmente il suo potere predittivo.
+
+
+
+\end{itemize}
 
 \section{Seconda Sezione}
 Ora vediamo un elenco puntato:
