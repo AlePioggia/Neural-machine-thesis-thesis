@@ -5,7 +5,70 @@
 \pagenumbering{arabic}                  %mette i numeri arabi
 
 
-\section{STM}
+\section{Statistical machine translation - STM}
+
+Gli STM, meglio conosciuti come statistical machine translators sono modelli di traduzione introdotti nel 1947, che con la successiva introduzione dei personal computers, gli scienziati sono stati in grado di applicare. Si tratta di modelli che, attraverso la teoria della probabilità, unita a concetti statistici, sono in grado di predirre un risultato (o target), a partire da una larga quantità di dati in ingresso (source). Il meccanismo introdotto è utilizzabile per:
+\begin{itemize}
+	\item tradurre del testo (non parole singole), la predittività è in grado di legare correttamente le parole fra loro, dandogli un senso;
+	\item implementare delle funzioni di autocompletamento, ad esempio, a partire da una domanda, tenta di indovinare una possibile risposta.
+\end{itemize}
+
+\subsection{Large data set}
+
+Dal momento che i modelli citati si basano principalmente sulla statistica, è necessario avere a disposizione una grande quantità di dati, catalogati ed organizzati in un data set.
+In particolare il data set, è ottenuto ed estratto a partire da traduzioni effettuate in precedenza (effettuate ed approvate da esseri umani, non AI) e prende il nome di corpus.
+Le organizzazioni mondiali più grandi mettono a disposizione le loro banche dati, alle quali si può accedere rispettando la privacy degli individui.  
+
+
+\subsection{Teoria della probabilità}
+
+La predittività che gli SMT è ottenuta sfruttando modelli probabilistici, ottenuti a partire dalle nozioni derivanti dalla teoria della probabilità, che tratta i fenomeni aleatori. Un fenomeno è un qualunque accadimento che porta ad un risultato, o esito, si dice deterministico se il risultato può essere calcolato o previsto con esattezza prima dell'effettuazione del fenomeno. Si dice invece aleatorio se non è possibile prevedere il risultato. L'insieme di tutti i possibili risultati di un fenomeno si indica con $\Omega$. L'evento è un sottoinsieme di $\Omega$, ovvero è l'insieme dei possibili risultati di un fenomeno aleatorio. Una valutazione di probabilità è invece, una funzione che associa ad ogni evento un numero tanto più grande quanto più riteniamo che tale evento possa accedere. Viene denotato da $P(E)$, per descrivere la valutazione dell'evento $E$. 
+\\
+Esempio dimostrativo:
+\begin{itemize}
+	\item $\Omega$ = $\{$ "okay, see you later", "oh really, I'm sorry", "don't bother me please!"$\}$
+	\item $E$ = "la risposta estratta è "okay, see you later"";
+	\item $P(E)$ = $\dfrac{1}{3}$ 
+\end{itemize}
+A partire da un insieme di possibili eventi $\Omega$
+, la probabilità che la frase selezionata venga estratta è 1 su 3. 
+
+\paragraph{Il fulcro} della predittività del modello ruota intorno alla probabilità condizionale, di conseguenza viene sfruttato il teorema di Bayes.
+\subsubsection{Probabilità condizionale}
+
+Considerando due eventi distinti $A$ e $B$, il calcolo della probabilità condizionale consta nel definire la probabilità che accada l'evento $B$ sapendo che è giù avvenuto $A$. Questa probabilità la definiamo come $P(A|B)$ e si calcola nel seguente modo: 
+$P(B|A)$ = $\dfrac{A \cap B}{A}$, questo perché non è altro che la proporzione di $A \cap B$ in $A$.
+
+\subsubsection{Formula di Bayes}
+
+$P(A | B)$ = $\dfrac{ P(B | A) \cdot P(A)}{P(A)}$
+
+\subsection{Variabili aleatorie continue}
+
+Intuitivamente, le variabili casuali continue sono quelle che possono assumere un insieme continuo di valori, al contrario delle distribuzioni discrete, per le quali l'insieme dei possibili valori ha cardinalità al più numerabile. Inoltre, mentre per una distribuzione discreta un evento con probabilità zero è irrealizzabile (come, ad esempio, ottenere 3½ da un lancio di un dado tradizionale), questo non è vero nel caso di una variabile casuale continua. Ad esempio, misurando la lunghezza di una foglia di quercia, è possibile ottenere il risultato 3½ cm, ma questo ha probabilità zero poiché vi sono infiniti possibili valori tra 3 cm e 4 cm. Ognuno di questi ha probabilità zero, ma la probabilità che la lunghezza della foglia sia nell'intervallo (3 cm, 4 cm) è non nulla. Questo apparente paradosso è causato dal fatto che la probabilità che una variabile casuale X assuma valori in un insieme infinito, come un intervallo, non può essere calcolata semplicemente sommando la probabilità dei singoli valori.
+
+\subsection{Phrase table}
+In SMT, the MT engineer builds a Translation Model using the frequency of phrases appearing the training corpus into a table. This table stores the phrase and the number of times this repeats over the entirety of the training corpus. The more frequently a phrase is repeated in a training corpus, the more probable the target translation is correct. Each phrase (stored in the Phrase Table) can range from one to five words in length. This phrase table is referred to as the Translation Model.
+
+Consequently, the MT engineer is using a probability model to hit on the right source target translation combination. The process is evolutionary as the corpus is refined and adjusted after each translation run to eliminate/adjust any anomalies. The more frequently the corpus is used, the more perfected it becomes. The development of the corpus quality is a continuous organic R and D process of a highly valuable translation asset.
+
+Additionally, the MT engineer builds a secondary model using the target translation data. This model helps determine the order in which the engineer needs to assemble phrases (from the Phrase Table) in order to optimise translation Fluency i.e. to give the translated text its natural language flow. Fluency ensures that literal translations (i.e. the words are all there, but the sense of the sentence is not) are replaced by a more natural sounding translation.
+
+\subsection{Modello probabilistico}
+
+In questa sottosezione, mostrerò la costruzione di un possibile modello probabilistico, il quale ha lo scopo di predirre la parola mancante all'interno della frase.
+
+\subsubsection{Dati}
+
+\\
+Frase: "Marco oggi ha <espressione mancante> il pallone"
+\\
+$E_{1}$ = "l'espressione mancante è un sostantivo"
+\\
+$E_{2}$ = "l'espressione mancante è un verbo"
+
+
+\newpage
 
 \section{Neural machine translation - NMT}                 %crea la sezione
 La neural machine translation (in italiano traduzione automatica neurale (NMT))  è un approccio alla traduzione automatica che utilizza una rete neurale per prevedere la probabilità di una sequenza di parole, modellando in genere intere frasi in un unico modello integrato. La creazione del modello sfrutta interamente il machine learning, dunque è in grado di apprendere autonomamente sulla base dei training alla quale prende parte. 
