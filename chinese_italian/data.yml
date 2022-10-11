@@ -1,0 +1,120 @@
+model_dir: chinese_italian_model
+
+# (optional)
+auto_config: true
+
+data:
+  train_features_file: data/chinese.txt
+  train_labels_file: data/italian.txt
+  source_vocabulary: data/src-vocab-chinese.txt
+  target_vocabulary: data/tgt-vocab-italian.txt
+
+  # (optional)
+  export_vocabulary_assets: true
+
+  # (optional)
+  sequence_controls:
+    start: false
+    end: true
+
+  # (optional)
+  tagging_scheme: bioes
+
+# Model and optimization parameters.
+params:
+  # The optimizer class name in tf.keras.optimizers or tfa.optimizers.
+  optimizer: Adamax
+  # (optional)
+  optimizer_params:
+    beta_1: 0.8
+    beta_2: 0.998
+  learning_rate: 1.0
+  # (optional)
+  regularization:
+    type: l2 # can be "l1", "l2", "l1_l2" (case-insensitive).
+    scale: 1e-4 # if using "l1_l2" regularization, this should be a YAML list.
+  # (optional)
+  decay_type: NoamDecay
+  # (optional unless decay_type is set) Decay parameters.
+  decay_params:
+    model_dim: 512
+    warmup_steps: 4000
+  # (optional) The number of training steps that make 1 decay step (default: 1).
+  decay_step_duration: 1
+  # (optional) After how many steps to start the decay (default: 0).
+  start_decay_steps: 50000
+  # (optional) The learning rate minimum value (default: 0).
+  minimum_learning_rate: 0.0001
+  # (optional) The label smoothing value.
+  label_smoothing: 0.3
+  # (optional) Width of the beam search (default: 1).
+  beam_width: 3 #la migliore combinazione date 3 parole
+  # (optional)
+  num_hypotheses: 0
+  # (optional) Length penaly weight to use during beam search (default: 0).
+  length_penalty: 0.2
+  # (optional) Coverage penaly weight to use during beam search (default: 0).
+  coverage_penalty: 0.2
+  # (optional) Sample predictions from the top K most likely tokens (requires
+  # beam_width to 1). If 0, sample from the full output distribution (default: 1).
+  sampling_topk: 1
+  # (optional) High temperatures generate more random samples (default: 1).
+  sampling_temperature: 1
+  # (optional)
+  replace_unknown_target: true
+  # (optional)
+  contrastive_learning: true
+
+# Training options.
+train:
+  # (optional) Training batch size. If set to 0, the training will search the largest
+  # possible batch size.
+  batch_size: 0
+  # (optional) Tune gradient accumulation to train with at least this effective batch size
+  # (default: null).
+  effective_batch_size: 25000
+  # (optional) Save a checkpoint every this many steps (default: 5000).
+  save_checkpoints_steps: 2000
+  # (optional) How many checkpoints to keep on disk.
+  keep_checkpoint_max: 10
+  # (optional) Dump summaries and logs every this many steps (default: 100).
+  save_summary_steps: 200
+  # (optional) Maximum training step. If not set, train forever.
+  max_step: 1000000
+  # (optional) The maximum length of feature sequences during training (default: null).
+  maximum_features_length: 90
+  # (optional) The maximum length of label sequences during training (default: null).
+  maximum_labels_length: 90
+
+  # (optional)
+  moving_average_decay: 0.9999
+  # (optional)
+  average_last_checkpoints: 8
+
+infer:
+  # (optional)
+  batch_size: 10
+  # (optional)
+  batch_type: examples
+  # (optional)
+  n_best: 1
+  # (optional) For compatible models, also output the score (default: false).
+  with_scores: true
+  # (optional) For compatible models, also output the alignments
+  # (can be: null, hard, soft, default: null).
+  with_alignments: soft
+  # (optional)
+  length_bucket_width: 5
+
+# (optional) Scoring options.
+score:
+  # (optional)
+  batch_size: 64
+  # (optional)
+  batch_type: examples
+  # (optional)
+  length_bucket_width: 0
+  # (optional)
+  with_token_level: false
+  # (optional)
+  with_alignments: null
