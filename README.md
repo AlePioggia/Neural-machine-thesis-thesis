@@ -4,14 +4,12 @@
 
 In order to run the first neural network, you should follow this steps (the example will be based on a unix machine, since it was created in docker):
 1. go to the directory named deep-neural-model -> `cd deep-neural-model`
-2. then run one of those command, depending on your choice, remembering that, the first one will use the default open-nmt Transformer model, the second one will be based on my custom model. 
-    - `<onmt-main --model_type Transformer --config data.yml --auto_config train>`
-    - `<onmt-main --model model/config/custom_transformer.py --config data.yml --auto_config train>` (not working yet)
+2. then run -> `<onmt-main --model_type Transformer --config data.yml --auto_config train>`
 
 ## Italian-chinese translation
 
 1. go to the directory named chinese_italian -> `cd chinese_italian`
-2. run this command -> `onmt-main --model_type TinyTransformer --config data.yml --auto_config train`
+2. run this command -> `onmt-main --model_type Transformer --config data.yml --auto_config train`
 
 ## Important note!
 
